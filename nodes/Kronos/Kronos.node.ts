@@ -208,7 +208,7 @@ export class Kronos implements INodeType {
 				displayName: 'Return All',
 				name: 'returnAll',
 				type: 'boolean',
-				default: false,
+				default: true,
 				description: 'Whether to return all results or only up to a given limit',
 				displayOptions: {
 					show: {
@@ -376,9 +376,14 @@ export class Kronos implements INodeType {
 						const limit = this.getNodeParameter('limit', i) as number;
 						response = response.slice(0, limit);
 					}
-				}
 
-				returnData.push({ json: response });
+					// Push each schedule as a separate item
+					for (const schedule of response) {
+						returnData.push({ json: schedule });
+					}
+				} else {
+					returnData.push({ json: response });
+				}
 			} catch (error) {
 				if (error.response) {
 					this.logger.error('API Error Response:');
