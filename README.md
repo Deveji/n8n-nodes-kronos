@@ -1,46 +1,84 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-kronos
 
-# n8n-nodes-starter
+This is an n8n community node. It lets you use Kronos in your n8n workflows.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io). It includes the node linter and other dependencies.
+Kronos is a scheduling service that allows you to create, manage, and trigger schedules for various tasks and workflows.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-## Prerequisites
+[Installation](#installation)  
+[Operations](#operations)  
+[Credentials](#credentials)  <!-- [Compatibility](#compatibility) -->  
+[Usage](#usage)  <!-- [Resources](#resources) -->  
+[Version history](#version-history)  <!-- [Troubleshooting](#troubleshooting) -->  <!-- [Contributing](#contributing) -->
 
-You need the following installed on your development machine:
+## Installation
 
-* [git](https://git-scm.com/downloads)
-* Node.js and pnpm. Minimum version Node 18. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  pnpm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-## Using this starter
+## Operations
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+- Create Schedule
+- Delete Schedule
+- Get Schedule
+- Get Many Schedules
+- Pause Schedule
+- Resume Schedule
+- Trigger Schedule
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `pnpm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `pnpm lint` to check for errors or `pnpm lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+## Credentials
 
-## More information
+To use this node, you need to authenticate with the Kronos API. You will need to provide:
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+1. Base URL: The base URL of your Kronos API instance.
+2. API Key: Your Kronos API key for authentication.
+
+## Usage
+
+### Create Schedule
+
+This operation allows you to create a new schedule in Kronos.
+
+**For recurring schedules:**
+1. Set "Is Recurring" to true.
+2. Enter the "Cron Expression" for the schedule.
+3. (Optional) Set "Start At" and "End At" for the recurring schedule.
+
+**For non-recurring schedules:**
+1. Set "Is Recurring" to false.
+2. Enter the "Run At" time for the non-recurring schedule.
+
+**Common fields:**
+- Title: The name of your schedule (must be unique).
+- Description: An optional description of your schedule.
+- URL: The webhook notification endpoint.
+- Metadata: Optional metadata to be sent when triggering the webhook.
+
+### Get Many Schedules
+
+This operation allows you to retrieve multiple schedules from Kronos.
+
+1. Choose whether to return all results or a limited number.
+2. If not returning all, set the limit for the number of schedules to return.
+3. (Optional) Enter a title filter to search for specific schedules.
+4. (Optional) Enter metadata filters as a JSON object to further refine your search.
+
+### Other Operations
+
+- **Delete Schedule**: Remove a schedule by its ID.
+- **Get Schedule**: Retrieve a single schedule by its ID.
+- **Pause Schedule**: Pause an active schedule.
+- **Resume Schedule**: Resume a paused schedule.
+- **Trigger Schedule**: Manually trigger a schedule.
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+[MIT](https://github.com/Deveji/n8n-nodes-kronos/blob/master/LICENSE.md)
+
+## Version history
+
+### 1.0.0
+
+- Initial release of Kronos node for n8n
+- Supports basic CRUD operations for schedules
+- Implements filtering and pagination for retrieving multiple schedules

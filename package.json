@@ -1,19 +1,22 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-kronos",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n node to interact with Kronos API for scheduling and managing webhooks",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "kronos",
+    "webhook",
+    "scheduling"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/Deveji/n8n-nodes-kronos",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Deveji",
+    "email": "info@deveji.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/Deveji/n8n-nodes-kronos.git"
   },
   "engines": {
     "node": ">=18.10",
@@ -36,12 +39,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
+      "dist/credentials/KronosApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/Kronos/Kronos.node.js"
     ]
   },
   "devDependencies": {
