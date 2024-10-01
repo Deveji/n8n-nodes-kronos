@@ -1,3 +1,5 @@
+![KRONOS](https://github.com/user-attachments/assets/12d572a7-335a-41f2-9429-bedd2dab9a20)
+
 # n8n-nodes-kronos
 
 This is an n8n community node. It lets you use Kronos in your n8n workflows.
