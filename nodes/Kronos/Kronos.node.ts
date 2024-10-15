@@ -377,12 +377,23 @@ export class Kronos implements INodeType {
 						response = response.slice(0, limit);
 					}
 
-					// Push each schedule as a separate item
-					for (const schedule of response) {
-						returnData.push({ json: schedule });
+					// Push each schedule as a separate item with pairedItem information
+					for (let j = 0; j < response.length; j++) {
+						returnData.push({
+							json: response[j],
+							pairedItem: {
+								item: i,
+							},
+						});
 					}
 				} else {
-					returnData.push({ json: response });
+					// For all other operations, push a single item with pairedItem information
+					returnData.push({
+						json: response,
+						pairedItem: {
+							item: i,
+						},
+					});
 				}
 			} catch (error) {
 				if (error.response) {
@@ -391,7 +402,12 @@ export class Kronos implements INodeType {
 				}
 
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message } });
+					returnData.push({
+						json: { error: error.message },
+						pairedItem: {
+							item: i,
+						},
+					});
 					continue;
 				}
 				throw new NodeApiError(this.getNode(), error);

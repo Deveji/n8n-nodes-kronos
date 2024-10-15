@@ -79,7 +79,7 @@ This operation allows you to retrieve multiple schedules from Kronos.
 
 ## Version history
 
-### 1.0.0
+### 0.1.0
 
 - Initial release of Kronos node for n8n
 - Supports basic CRUD operations for schedules
