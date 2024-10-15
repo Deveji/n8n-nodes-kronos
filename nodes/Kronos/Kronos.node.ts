@@ -1,5 +1,6 @@
 import {
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
@@ -8,9 +9,49 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
-function formatDateTime(dateTimeString: string): string {
+function formatDateTimeForTimeAPI(dateTimeString: string): string {
+	const date = new Date(dateTimeString);
+	return date.toISOString().replace('T', ' ').slice(0, 19);
+}
+
+function formatDateTimeForKronos(dateTimeString: string): string {
 	const date = new Date(dateTimeString);
 	return date.toISOString();
+}
+
+async function getAvailableTimezones(this: ILoadOptionsFunctions): Promise<string[]> {
+	const options: IHttpRequestOptions = {
+		method: 'GET',
+		url: 'https://timeapi.io/api/timezone/availabletimezones',
+		headers: {
+			accept: 'application/json',
+		},
+	};
+
+	const response = await this.helpers.request(options);
+	return JSON.parse(response);
+}
+
+async function convertTimezone(this: IExecuteFunctions, fromTimeZone: string, dateTime: string, toTimeZone: string): Promise<string> {
+	const formattedDateTime = formatDateTimeForTimeAPI(dateTime);
+	const options: IHttpRequestOptions = {
+		method: 'POST',
+		url: 'https://timeapi.io/api/conversion/converttimezone',
+		headers: {
+			accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			fromTimeZone: toTimeZone,
+			dateTime: formattedDateTime,
+			toTimeZone: fromTimeZone,
+			dstAmbiguity: '',
+		}),
+	};
+
+	const response = await this.helpers.request(options);
+	const result = JSON.parse(response);
+	return formatDateTimeForKronos(result.conversionResult.dateTime);
 }
 
 export class Kronos implements INodeType {
@@ -192,7 +233,24 @@ export class Kronos implements INodeType {
 				description: 'UTC end date of the schedule',
 			},
 			{
-				displayName: 'Metadata',
+				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
+				displayName: 'Timezone',
+				name: 'timezone',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getTimezones',
+				},
+				default: '',
+				// eslint-disable-next-line n8n-nodes-base/node-param-description-excess-final-period, n8n-nodes-base/node-param-description-wrong-for-dynamic-options
+				description: 'Choose from the list, or specify using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+				displayOptions: {
+					show: {
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Metadata File',
 				name: 'metadata',
 				type: 'json',
 				default: '{}',
@@ -201,7 +259,7 @@ export class Kronos implements INodeType {
 						operation: ['create'],
 					},
 				},
-				description: 'Optional metadata which will be sent when triggering a webhook',
+				description: 'Optional metadata file which will be sent when triggering a webhook',
 			},
 			// Properties for getMany operation
 			{
@@ -259,6 +317,15 @@ export class Kronos implements INodeType {
 		],
 	};
 
+	methods = {
+		loadOptions: {
+			async getTimezones(this: ILoadOptionsFunctions) {
+				const timezones = await getAvailableTimezones.call(this);
+				return timezones.map((tz: string) => ({ name: tz, value: tz }));
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -285,14 +352,17 @@ export class Kronos implements INodeType {
 						if (body.isRecurring) {
 							body.cronExpr = this.getNodeParameter('cronExpr', i) as string;
 							const startAt = this.getNodeParameter('startAt', i) as string;
-							if (startAt) body.startAt = formatDateTime(startAt);
 							const endAt = this.getNodeParameter('endAt', i) as string;
-							if (endAt) body.endAt = formatDateTime(endAt);
+							const timezone = this.getNodeParameter('timezone', i) as string;
+							if (startAt) body.startAt = await convertTimezone.call(this, timezone, startAt, 'UTC');
+							if (endAt) body.endAt = await convertTimezone.call(this, timezone, endAt, 'UTC');
 						} else {
-							const runAt = formatDateTime(this.getNodeParameter('runAt', i) as string);
-							body.runAt = runAt;
-							body.startAt = runAt;
-							body.endAt = runAt;
+							const runAt = this.getNodeParameter('runAt', i) as string;
+							const timezone = this.getNodeParameter('timezone', i) as string;
+							const convertedRunAt = await convertTimezone.call(this, timezone, runAt, 'UTC');
+							body.runAt = convertedRunAt;
+							body.startAt = convertedRunAt;
+							body.endAt = convertedRunAt;
 						}
 						const metadata = this.getNodeParameter('metadata', i) as string;
 						if (metadata) body.metadata = JSON.parse(metadata);

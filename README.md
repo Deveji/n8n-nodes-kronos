@@ -54,7 +54,7 @@ This operation allows you to create a new schedule in Kronos.
 - Title: The name of your schedule (must be unique).
 - Description: An optional description of your schedule.
 - URL: The webhook notification endpoint.
-- Metadata: Optional metadata to be sent when triggering the webhook.
+- Metadata: Optional metadata file to be sent when triggering the webhook.
 
 ### Get Many Schedules
 
